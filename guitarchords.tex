@@ -1,0 +1,112 @@
+\documentclass[12pt]{report}
+
+\newcommand{\authorname}{Ben Shelton}
+\newcommand{\fulltitle}{Jazz Guitar Chord Voicings}
+
+\usepackage{gchords}
+\usepackage{luacode}
+\usepackage{geometry}
+\usepackage{rotating}
+
+\usepackage{graphicx}
+\usepackage[obeyspaces,spaces]{url}
+\usepackage{hyperref}
+
+\hypersetup{
+% Set PDF authorship information
+    pdfauthor={\authorname},%
+    pdftitle={\fulltitle},%
+    pagebackref=true,%
+% Make hyperref links black
+    colorlinks,%
+    citecolor=black,%
+    filecolor=black,%
+    linkcolor=black,%
+    urlcolor=black
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.1in}
+
+\begin{document}
+
+\begin{luacode*}
+function fret_to_str(base_fret, fret)
+        if (fret == "x") then
+                return "x";
+        end
+        
+        if (fret == "n") then
+                return "n";
+        end
+
+        if (fret == "o") then
+                return "o";
+        end
+
+        return tonumber(fret) - base_fret;
+end
+
+local function split(str,pat)
+   local tbl = {}
+   str:gsub(pat, function(x) tbl[#tbl+1]=x end)
+   return tbl
+end
+
+function print_chord(base_fret, strinfo)
+	local strarray, outstr
+	local pat = "[^,]*"
+        
+        strarray = split(strinfo, pat)
+        
+        outstr = string.format([[\chord{%d}{]], base_fret);
+        
+        outstr = outstr .. fret_to_str(base_fret, strarray[1]) .. ",";
+        outstr = outstr .. fret_to_str(base_fret, strarray[2]) .. ",";
+        outstr = outstr .. fret_to_str(base_fret, strarray[3]) .. ",";
+        outstr = outstr .. fret_to_str(base_fret, strarray[4]) .. ",";
+        outstr = outstr .. fret_to_str(base_fret, strarray[5]) .. ",";
+        outstr = outstr .. fret_to_str(base_fret, strarray[6]) .. "}";
+
+        return outstr;
+end
+\end{luacode*}
+
+\newcommand*{\abschord}[2]{% 
+\directlua{tex.print(print_chord(#1, [[#2]]))}%
+}%
+
+\newcommand{\achapter}[2]{
+	\chapter{#1}
+	\label{#2}
+	\markright{\authorname \hfill Chapter \thechapter. #1 \hfill}
+}
+
+\title{Jazz Guitar Chord Voicings}
+\author{Ben Shelton}
+\date{October 2019}
+
+\maketitle
+
+\pagebreak
+
+\chapter*{Acknowledgments}
+
+I'd like to acknowledge the following influences on this work:
+
+Ted Greene, for setting such a superb example of how to play the guitar and how to treat other people.
+
+Clare Fischer, whose voicings I have stolen over and over and over again.
+
+\tableofcontents
+\pagebreak
+
+% common settings
+\mediumchords
+
+\input{introduction.tex}
+\input{movements.tex}
+\input{rubs.tex}
+\input{basic_grips.tex}
+
+\end{document}
